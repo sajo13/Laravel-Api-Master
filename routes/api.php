@@ -9,6 +9,12 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::post('/register', [AuthController::class, 'register']);
 
+// Route to fetch a all Tickets.
 Route::get('/tickets', function() {
     return Ticket::all();
+});
+
+// Route to fetch a ticket by its ID
+Route::get('/tickets/{id}', function($id) {
+    return Ticket::findOrFail($id);
 });
