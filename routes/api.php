@@ -18,3 +18,10 @@ Route::get('/tickets', function() {
 Route::get('/tickets/{id}', function($id) {
     return Ticket::findOrFail($id);
 });
+
+
+// Route to create a new ticket
+Route::post('/tickets', function(Request $request) {
+    $ticket = Ticket::create($request->all());
+    return response()->json($ticket, 201);
+});
