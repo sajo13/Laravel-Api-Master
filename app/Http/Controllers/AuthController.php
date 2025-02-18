@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ApiLoginRequest;
 use Illuminate\Http\Request;
 use App\Traits\ApiResponse;
 
 class AuthController extends Controller
 {
     use ApiResponse;
-    public function login() {
+    public function login(ApiLoginRequest $request) {
 
-        return $this->ok('Hello, Login!');
+        return $this->ok($request->get('email'));
     }
 
-    public function loginError()
-    {
-        return $this->error('Invalid credentials', 401);
+    public function register() {
+        return $this->ok('register');
     }
 }
