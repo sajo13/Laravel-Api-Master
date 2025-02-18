@@ -32,3 +32,10 @@ Route::put('/tickets/edit/{id}', function(Request $request, $id) {
     $ticket->update($request->all());
     return response()->json($ticket);
 });
+
+// Find the ticket by ID and delete it
+Route::delete('/tickets/delete/{id}', function($id) {
+    $ticket = Ticket::findOrFail($id);
+    $ticket->delete();
+    return response()->json(null, 204);
+});
