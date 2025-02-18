@@ -25,3 +25,10 @@ Route::post('/tickets', function(Request $request) {
     $ticket = Ticket::create($request->all());
     return response()->json($ticket, 201);
 });
+
+// Update the ticket with the given ID using the request data
+Route::put('/tickets/edit/{id}', function(Request $request, $id) { 
+    $ticket = Ticket::findOrFail($id);
+    $ticket->update($request->all());
+    return response()->json($ticket);
+});
