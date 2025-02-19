@@ -1,43 +1,18 @@
 <?php
 
-use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Models\Ticket;
+use App\Http\Controllers\API\RegisterController;
+use App\Http\Controllers\API\BlogController;
 
-Route::post('/login', [AuthController::class, 'login']);
+Route::controller(RegisterController::class)->group(function(){
+    Route::post('register', 'register')->name('register');
+    Route::post('login', 'login')->name('login');
+});
 
-Route::post('/register', [AuthController::class, 'register']);
-
-Route::prefix('v1')->group(function() {
-    // Route to fetch a all Tickets.
-    Route::get('/tickets', function() {
-        return Ticket::all();
-    });
-
-    // Route to fetch a ticket by its ID
-    Route::get('/tickets/{id}', function($id) {
-        return Ticket::findOrFail($id);
-    });
-
-
-    // Route to create a new ticket
-    Route::post('/tickets', function(Request $request) {
-        $ticket = Ticket::create($request->all());
-        return response()->json($ticket, 201);
-    });
-
-    // Update the ticket with the given ID using the request data
-    Route::put('/tickets/edit/{id}', function(Request $request, $id) { 
-        $ticket = Ticket::findOrFail($id);
-        $ticket->update($request->all());
-        return response()->json($ticket);
-    });
-
-    // Find the ticket by ID and delete it
-    Route::delete('/tickets/delete/{id}', function($id) {
-        $ticket = Ticket::findOrFail($id);
-        $ticket->delete();
-        return response()->json(null, 204);
-    });
+Route::middleware('auth:sanctum')->group( function () {
+    Route::apiResource('blogs', BlogController::class);
+    Route::get('user', function (Request $request) {
+        return $request->user();
+    })->name('user');
 });
