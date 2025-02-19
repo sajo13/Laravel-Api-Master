@@ -568,3 +568,45 @@ public function CurrentStatus(): HasOne
     return $this->HasOne(OrderStatus::class)
      ->latestOfMany();
 }
+
+//Dynamic Relationships Using Subqueries
+
+Subqueries allow us to select extra columns (attributes) right in our database query (the users query in our example).
+ Let's look at how we can do this.
+
+$users = User::query()
+    ->addSelect(['last_login_at' => Login::select('created_at')
+        ->whereColumn('user_id', 'users.id')
+        ->latest()
+        ->take(1)
+    ])
+    ->withCasts(['last_login_at' => 'datetime'])
+    ->get();
+
+@foreach ($users as $user)
+    <tr>
+        <td>{{ $user->name }}</td>
+        <td>{{ $user->email }}</td>
+        <td>
+            @if ($user->last_login_at)
+                {{ $user->last_login_at->format('M j, Y \a\t g:i a') }}
+            @else
+                Never
+            @endif
+        </td>
+    </tr>
+@endforeach
+select
+    "users".*,
+    (
+        select "created_at" from "logins"
+        where "user_id" = "users"."id"
+        order by "created_at" desc
+        limit 1
+    ) as "last_login_at"
+from "users";
+
+
+Using a subquery in this way allows us to get all the information we need for our users page in a single query. 
+This technique provides huge performance wins, since we can keep both our database queries and memory usage to a minimum,
+ plus we've avoided having to use caching.
