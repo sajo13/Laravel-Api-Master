@@ -510,3 +510,15 @@ class User extends Model
         );
     }
 }
+
+
+The Strategy and Factory patterns are both creational design patterns, but they serve different purposes.
+
+The Strategy pattern is used to define a family of algorithms, encapsulate each one, and make them interchangeable. It allows the algorithm to vary independently from the clients that use it. In the provided code, the TransactionContext class represents the context that uses different strategies (IncomeTransaction and ExpenseTransaction) based on the CategoryTypeEnum. The TransactionContext class has a store method that delegates the actual storing logic to the selected strategy.
+
+On the other hand, the Factory pattern is used to create objects without specifying the exact class of the object that will be created. It provides an interface for creating objects, but allows subclasses to decide which class to instantiate. In the provided code, the TransactionFactory class is responsible for creating the appropriate transaction object based on the CategoryTypeEnum. The initialize method of the TransactionFactory class returns an instance of the appropriate transaction class.
+
+To summarize:
+
+The Strategy pattern is used to define interchangeable algorithms and allows the client to select the algorithm at runtime.
+The Factory pattern is used to create objects without specifying the exact class and allows subclasses to decide which class to instantiate.
