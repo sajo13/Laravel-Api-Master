@@ -418,3 +418,30 @@ interface Seekable
             return false;
         }
     }
+
+ // Understanding Property Hooks
+Property hooks are specialized methods that intercept property access and modification, providing a direct, intuitive way to manage class properties. Unlike traditional getter and setter methods, property hooks offer a seamless mechanism to control property interactions with built-in type safety and validation.
+
+Key Benefits of Property Hooks
+Simplified Syntax: Eliminate verbose getter and setter methods
+Enhanced Encapsulation: Maintain strict control over property access
+Improved Type Safety: Leverage built-in type checking
+Better Performance: Achieve direct property-like access with robust validation
+Practical Implementation
+Let’s dive into a concrete example that illustrates the power of property hooks. Consider a BankAccount class that requires sophisticated balance management:
+
+class BankAccount {
+    public get float $balance {
+        return $this->_balance * $this->exchangeRate;
+    }
+    
+    public set float $balance {
+        if ($value < 0) {
+            throw new InvalidArgumentException('Balance cannot be negative');
+        }
+        $this->_balance = $value;
+    }
+    
+    private float $_balance = 0;
+    private float $exchangeRate = 1.0;
+}
