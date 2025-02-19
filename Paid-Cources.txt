@@ -263,7 +263,7 @@ Scalability: Add new features without breaking existing code
 Code Quality: Better organization and cleaner architecture
 
 
-//Using Interfaces for Loose Coupling (The Right Way)
+#Using Interfaces for Loose Coupling (The Right Way)
 interface NotifierInterface
 {
     public function sendNotification(string $recipient, string $message): void;
