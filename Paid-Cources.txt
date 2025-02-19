@@ -543,3 +543,15 @@ This keeps your controllers clean and focused on handling HTTP requests.
  like the "Debugbar" to identify slow queries, and optimizing your Eloquent relationships 
  and query structures by checking for potential "N+1" query problems, eager loading, 
  and proper indexing on your database tables. 
+
+ //Minimize Memory Usage
+To minimize memory usage when working with Eloquent in Laravel, focus on fetching only the necessary data columns by using the select method, leverage eager loading with with() to avoid N+1 query issues, and utilize techniques like chunking (chunk()) to process large datasets in smaller batches, preventing overloading of memory. 
+Key strategies to minimize Eloquent memory usage:
+Select specific columns:
+Use select('column1', 'column2') to retrieve only the required columns from the database, instead of using select('*') which fetches all columns. 
+Eager loading:
+When querying related models, use with() to load them in a single query, preventing unnecessary database round trips and reducing memory usage. 
+Lazy loading:
+Consider using lazy collections (introduced in Laravel 6+) to load related data only when needed, further optimizing memory usage for large datasets. 
+Chunking:
+For very large result sets, use the chunk() method to process data in smaller batches, which can significantly reduce memory consumptio
