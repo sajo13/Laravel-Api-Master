@@ -662,3 +662,33 @@ class Category extends Model
 Now, typically you don't access both sides of a relationship in the same endpoint. 
 For example, if you visit a product category page, you'll load all the products for that category. 
 However, you likely won't load all the categories for those products, since you're already on the category page.
+
+//Multi-Column Searching eloquent
+
+Using where and orWhere
+If you want to search across multiple columns with different conditions, you can chain where and orWhere:
+
+php
+Copy
+$search = 'example';  // The term you are searching for
+
+$results = Model::where('column1', 'like', "%$search%")
+                ->orWhere('column2', 'like', "%$search%")
+                ->orWhere('column3', 'like', "%$search%")
+                ->get();
+This query will search for the $search term in column1, column2, and column3.
+
+2. Using where with orWhere inside a closure
+If you have multiple conditions for different columns and need more control over grouping them, you can use a closure inside the where method:
+
+php
+Copy
+$search = 'example';
+
+$results = Model::where(function($query) use ($search) {
+                    $query->where('column1', 'like', "%$search%")
+                          ->orWhere('column2', 'like', "%$search%")
+                          ->orWhere('column3', 'like', "%$search%");
+                })
+                ->get();
+This ensures that all orWhere conditions are grouped together in one set of parentheses.
