@@ -635,3 +635,30 @@ $totals = DB::table('subscribers')
     ->selectRaw("count(case when status = 'cancelled' then 1 end) as cancelled")
     ->selectRaw("count(case when status = 'bounced' then 1 end) as bounced")
     ->first();
+
+//What are circular relationships?
+So what exactly are circular relationships? In a way, all relationships are circular. 
+Consider a User and an Account. A user belongs to an account, and an account has many users. 
+Another example is a Product and a Category. A product belongs to a category, and a category has many products. 
+They are circular because they "point" to each other.
+
+Here's how you might define this in Laravel:
+
+class Product extends Model
+{
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+}
+
+class Category extends Model
+{
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
+}
+Now, typically you don't access both sides of a relationship in the same endpoint. 
+For example, if you visit a product category page, you'll load all the products for that category. 
+However, you likely won't load all the categories for those products, since you're already on the category page.
