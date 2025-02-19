@@ -340,3 +340,81 @@ interface Seekable
     public function seekTo(int $position): void;
     public function getCurrentPosition(): int;
 }
+
+
+// Encapsulation and Visiblity in php
+
+    What is Encapsulation in PHP?
+    Think of encapsulation like a secure vault in a bank. Just as a vault protects valuable assets and controls access through specific procedures, encapsulation in PHP:
+
+    Bundles related data and methods together
+    Controls access to class members
+    Protects internal implementation details
+
+
+    How to Implement Encapsulation in PHP 8.4
+    Let’s learn through practical examples by building a banking system.
+
+    1. Basic Encapsulation Structure
+    class BankAccount
+    {
+        private float $balance = 0;
+        
+        public function __construct(
+            private string $accountNumber,
+            private string $accountType = 'savings'
+        ) {
+            //
+        }
+        
+        public function getBalance(): float
+        {
+            return $this->balance;
+        }
+        
+        public function deposit(float $amount): bool
+        {
+            if ($amount > 0) {
+                $this->balance += $amount;
+                return true;
+            }
+            return false;
+        }
+        
+        public function withdraw(float $amount): bool
+        {
+            if ($amount > 0 && $this->balance >= $amount) {
+                $this->balance -= $amount;
+                return true;
+            }
+            return false;
+        }
+    }
+    2. Understanding Visibility Modifiers
+
+    class Customer
+    {
+        // Only accessible within this class
+        private string $socialSecurityNumber;
+        
+        // Accessible within this class and child classes
+        protected string $customerType;
+        
+        // Accessible from anywhere
+        public string $name;
+        
+        private function validateSSN(string $ssn): bool
+        {
+            // Internal validation logic
+            return (bool) preg_match('/^\d{3}-\d{2}-\d{4}$/', $ssn);
+        }
+        
+        public function setSSN(string $ssn): bool
+        {
+            if ($this->validateSSN($ssn)) {
+                $this->socialSecurityNumber = $ssn;
+                return true;
+            }
+            return false;
+        }
+    }
