@@ -302,3 +302,41 @@ class OrderProcessor
         );
     }
 }
+
+//Interfaces as Feature Filters
+
+Why Use Interfaces as Feature Filters?
+Clear Feature Sets
+Explicitly define available features
+Make capabilities obvious at a glance
+Improve code readability
+Type Safety
+Guarantee feature availability
+Catch missing implementations early
+Reduce runtime errors
+Flexible Architecture
+Mix and match features
+Easy feature addition
+Simple capability checking
+How to Implement Interface Feature Filters in PHP 8.4
+Let’s learn through practical examples by building a media player system.
+
+1. Basic Interface Structure
+interface Playable
+{
+    public function play(): void;
+    public function pause(): void;
+    public function stop(): void;
+}
+
+interface HasVolume
+{
+    public function setVolume(int $level): void;
+    public function getVolume(): int;
+}
+
+interface Seekable
+{
+    public function seekTo(int $position): void;
+    public function getCurrentPosition(): int;
+}
