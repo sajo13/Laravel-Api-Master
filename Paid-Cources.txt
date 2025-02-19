@@ -535,3 +535,11 @@ This keeps your controllers clean and focused on handling HTTP requests.
  if you execute the make:rule Artisan command. 
  The Rules directory contains the custom validation rule objects for your application. 
  Rules are used to encapsulate complicated validation logic in a simple object.
+
+
+ //Measuring Your Database Performance eloquent
+ To measure database performance within an Eloquent application (Laravel), 
+ you can primarily focus on analyzing query execution times, utilizing Laravel's built-in debugging tools 
+ like the "Debugbar" to identify slow queries, and optimizing your Eloquent relationships 
+ and query structures by checking for potential "N+1" query problems, eager loading, 
+ and proper indexing on your database tables. 
