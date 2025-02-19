@@ -213,8 +213,7 @@ Types: Define types for both incoming data (e.g., request body) and outgoing dat
 Static Analysis: Use static analysis tools to enforce rules around types and catch potential issues such as missing parameters, type mismatches, or other logic errors.
 
 Example Code:
-php
-Copy
+
 // User Registration DTO
 class UserRegisterDTO {
     public $name;
@@ -243,7 +242,63 @@ class UserController {
 Static Analysis Setup:
 You would run static analysis tools like PHPStan or Psalm on your codebase:
 
-bash
-Copy
 vendor/bin/phpstan analyse src
+
 This ensures that all code follows the correct types and logic and that there are no runtime issues or errors before deploying your application.
+
+// Dependencies, Coupling, and Interfaces
+
+What Are Dependencies and Coupling?
+Think of dependencies like relationships between different parts of your application. Just as a car engine depends on fuel to run, your PHP classes often depend on other classes to function properly.
+
+Coupling refers to how tightly these relationships are connected. Imagine two dance partners:
+
+Loose coupling is like ballroom dancing — partners can easily switch and adapt
+Tight coupling is like synchronized swimming — partners are strictly bound together
+Why Should You Care About Dependencies and Interfaces?
+Maintainability: Easier to update individual components
+Testability: Simpler to write unit tests
+Flexibility: Swap implementations without changing code
+Scalability: Add new features without breaking existing code
+Code Quality: Better organization and cleaner architecture
+
+
+//Using Interfaces for Loose Coupling (The Right Way)
+interface NotifierInterface
+{
+    public function sendNotification(string $recipient, string $message): void;
+}
+
+class EmailNotifier implements NotifierInterface
+{
+    public function sendNotification(string $recipient, string $message): void
+    {
+        // Send email logic
+        echo "Sending email to {$recipient}: {$message}";
+    }
+}
+
+class SMSNotifier implements NotifierInterface
+{
+    public function sendNotification(string $recipient, string $message): void
+    {
+        // Send SMS logic
+        echo "Sending SMS to {$recipient}: {$message}";
+    }
+}
+
+class OrderProcessor
+{
+    public function __construct(
+        private NotifierInterface $notifier
+    ) {}
+    
+    public function processOrder(Order $order): void
+    {
+        // Process order
+        $this->notifier->sendNotification(
+            $order->getCustomerContact(),
+            "Your order #{$order->getId()} has been processed!"
+        );
+    }
+}
