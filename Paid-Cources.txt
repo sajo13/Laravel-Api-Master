@@ -485,3 +485,28 @@ class Mechanic extends Model
         return $this->hasOneThrough(Owner::class, Car::class);
     }
 }
+
+
+//code demonstrates how to use accessors and mutators in Laravel with Eloquent models, 
+leveraging the new Attribute class introduced in Laravel.
+
+<?php
+ 
+namespace App\Models;
+ 
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
+ 
+class User extends Model
+{
+    /**
+     * Interact with the user's first name.
+     */
+    protected function firstName(): Attribute
+    {
+        return Attribute::make(
+            get: fn (string $value) => ucfirst($value),
+            set: fn (string $value) => strtolower($value),
+        );
+    }
+}
