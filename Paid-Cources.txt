@@ -554,4 +554,17 @@ When querying related models, use with() to load them in a single query, prevent
 Lazy loading:
 Consider using lazy collections (introduced in Laravel 6+) to load related data only when needed, further optimizing memory usage for large datasets. 
 Chunking:
-For very large result sets, use the chunk() method to process data in smaller batches, which can significantly reduce memory consumptio
+For very large result sets, use the chunk() method to process data in smaller batches, which can significantly reduce memory consumption.
+
+//Getting One Record From a Has-Many Relationship
+
+If the laravel app contains 2 models, Say Order and OrderStatus.
+By Using the Order model relationship, we can acheive the result.
+
+This will fetch only the latest status of the Order.
+eg: App\Models\Order
+public function CurrentStatus(): HasOne
+{
+    return $this->HasOne(OrderStatus::class)
+     ->latestOfMany();
+}
