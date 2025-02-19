@@ -610,3 +610,28 @@ from "users";
 Using a subquery in this way allows us to get all the information we need for our users page in a single query. 
 This technique provides huge performance wins, since we can keep both our database queries and memory usage to a minimum,
  plus we've avoided having to use caching.
+
+ // Conditional aggregates
+There's actually a really simple way to calculate these totals using a single database query. The trick is to put conditions within aggregate functions. Here's an example in SQL:
+
+select
+  count(*) as total,
+  count(case when status = 'confirmed' then 1 end) as confirmed,
+  count(case when status = 'unconfirmed' then 1 end) as unconfirmed,
+  count(case when status = 'cancelled' then 1 end) as cancelled,
+  count(case when status = 'bounced' then 1 end) as bounced
+from subscribers
+
+ total | confirmed | unconfirmed | cancelled | bounced
+-------+-----------+-------------+-----------+---------
+   200 |       150 |          50 |        30 |      25
+
+Here's how you can write this query in Laravel using the query builder:
+
+$totals = DB::table('subscribers')
+    ->selectRaw('count(*) as total')
+    ->selectRaw("count(case when status = 'confirmed' then 1 end) as confirmed")
+    ->selectRaw("count(case when status = 'unconfirmed' then 1 end) as unconfirmed")
+    ->selectRaw("count(case when status = 'cancelled' then 1 end) as cancelled")
+    ->selectRaw("count(case when status = 'bounced' then 1 end) as bounced")
+    ->first();
