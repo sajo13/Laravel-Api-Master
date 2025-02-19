@@ -522,3 +522,16 @@ To summarize:
 
 The Strategy pattern is used to define interchangeable algorithms and allows the client to select the algorithm at runtime.
 The Factory pattern is used to create objects without specifying the exact class and allows subclasses to decide which class to instantiate.
+
+//Better encapsulation in Laravel
+
+Encapsulation Using Services
+You can create service classes in Laravel to encapsulate business logic. 
+This keeps your controllers clean and focused on handling HTTP requests.
+ Encapsulation in OOP and Laravel involves: Private and 
+ Protected Members: Restricting access to internal properties and methods.
+
+ This directory does not exist by default, but will be created for you 
+ if you execute the make:rule Artisan command. 
+ The Rules directory contains the custom validation rule objects for your application. 
+ Rules are used to encapsulate complicated validation logic in a simple object.
