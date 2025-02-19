@@ -445,3 +445,43 @@ class BankAccount {
     private float $_balance = 0;
     private float $exchangeRate = 1.0;
 }
+
+//Eloquent Relationships- Has-one-through
+
+The "has-one-through" relationship defines a one-to-one relationship with another model. However, this relationship indicates that the declaring model can be matched with one instance of another model by proceeding through a third model.
+
+For example, in a vehicle repair shop application, each Mechanic model may be associated with one Car model, and each Car model may be associated with one Owner model. While the mechanic and the owner have no direct relationship within the database, the mechanic can access the owner through the Car model. Let's look at the tables necessary to define this relationship:
+
+mechanics
+    id - integer
+    name - string
+ 
+cars
+    id - integer
+    model - string
+    mechanic_id - integer
+ 
+owners
+    id - integer
+    name - string
+    car_id - integer
+
+Now that we have examined the table structure for the relationship, let's define the relationship on the Mechanic model:
+
+<?php
+ 
+namespace App\Models;
+ 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+ 
+class Mechanic extends Model
+{
+    /**
+     * Get the car's owner.
+     */
+    public function carOwner(): HasOneThrough
+    {
+        return $this->hasOneThrough(Owner::class, Car::class);
+    }
+}
