@@ -927,3 +927,77 @@ select users.*
 from users
 inner join companies on companies.id = users.company_id
 order by companies.name asc
+
+//Options for Ordering by a HasMany Relationship
+
+Consider an app which lists users with their name, email and last login date. It's currently ordering the users by their name, but what if we wanted to order them by their last login date instead?
+
+Name	Email	Last login
+Adam Wathan	adam.wathan@gmail.com	3 months ago
+Chris Fidao	fideloper@gmail.com	8 seconds ago
+Jonathan Reinink	jonathan@reinink.ca	6 days ago
+Taylor Otwell	taylor@laravel.com	A week ago
+(As an aside, if you're wondering how to get the last login date in the most efficient way, be sure to see my dynamic relationships article.)
+
+This app includes a User model with a hasMany logins relationship. Meaning, the login information exists in a logins table. Each time a user logs in, a new record is created in this table.
+
+class User extends Model
+{
+    public function logins()
+    {
+        return $this->hasMany(Login::class);
+    }
+}
+There's actually two approaches we can use to order by has-many relationships. This can be done with a join or with a subquery. Let's start with the subquery approach, since it's simpler.
+
+As of Laravel 6, the orderBy() and orderByDesc() query builder methods support passing a query, instead of just a column name. When you do this, the query is executed as a subquery within the order by statement.
+
+$users = User::orderByDesc(Login::select('created_at')
+    ->whereColumn('logins.user_id', 'users.id')
+    ->latest()
+    ->take(1)
+)->get();
+Let's take a closer look at this subquery.
+
+First we select the created_at column from the logins table.
+
+Login::select('created_at')
+Then we limit the results by comparing the login user_id column to the id of the user in the parent query.
+
+->whereColumn('logins.user_id', 'users.id')
+Then we call the latest() method, which orders the logins to get the most recent record first.
+
+->latest()
+And finally, we limit the results to only one row, since a subquery can only return a single row and column, but a user will (most likely) have more than one login record.
+
+->take(1)
+Here's the generated SQL for this query, which includes our login subquery in the order by statement.
+
+select * from users order by (
+    select created_at
+    from logins
+    where user_id = users.id
+    order by created_at desc
+    limit 1
+) desc
+Quite often I'll take this order by statement and create a model scope for it, just to nicely encapsulate it and make it easier to reuse. For example:
+
+public function scopeOrderByLastLogin($query, $direction = 'desc')
+{
+    $query->orderBy(Login::select('created_at')
+        ->whereColumn('logins.user_id', 'users.id')
+        ->latest()
+        ->take(1),
+        $direction
+    );
+}
+And now you can simply call this scope from your controllers (or wherever you need it):
+
+$users = User::orderByLastLogin()->get();
+Okay, now let's take a look at the join approach.
+
+$users = User::select('users.*')
+    ->join('logins', 'logins.user_id', '=', 'users.id')
+    ->groupBy('users.id')
+    ->orderByRaw('max(logins.created_at) desc')
+    ->get();
