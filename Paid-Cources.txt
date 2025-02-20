@@ -784,3 +784,38 @@ $combinedResultsIncludingDuplicates = $query1->unionAll($query2)->get();
 // Return or display the combined results
 return $combinedResults;
 ?>
+
+//Using Regular Expressions in Laravel Eloquent
+Laravel Eloquent allows you to use the where clause with a REGEXP or LIKE for pattern matching in the database. Here's an example:
+
+Example 1: Basic Fuzzy Search with REGEXP
+You can use regular expressions for more flexible search patterns.
+
+<?php
+
+use App\Models\User;
+
+$searchTerm = 'jo*n'; // Example search term with a wildcard
+$users = User::where('name', 'REGEXP', $searchTerm)->get();
+
+// Output the results
+return $users;
+?>
+In this example, the REGEXP operator allows for searching for a pattern, where * or n can be replaced by any character. You could use this for more advanced searching techniques like:
+
+Searching for variations in names (Jo*n matches John, Jon, etc.).
+Finding words that start with certain letters (Jo.* matches John, Jonathan, etc.).
+Example 2: Using LIKE for Basic Fuzzy Matching
+For more basic "fuzzy" matching where you allow for some flexibility, LIKE is commonly used with wildcards (%).
+
+<?php
+
+use App\Models\User;
+
+$searchTerm = 'jon'; // Example search term
+$users = User::where('name', 'LIKE', "%{$searchTerm}%")->get();
+
+// Output the results
+return $users;
+?>
+Here, % represents any sequence of characters before or after the search term (jon), allowing matches like Johnny, Jonas, Jonathan, etc. This can simulate "fuzzy" searching by allowing variations of the search term.
