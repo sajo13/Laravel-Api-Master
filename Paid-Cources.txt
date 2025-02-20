@@ -841,3 +841,45 @@ for the user_id and created_at columns.
 Schema::table('logins', function (Blueprint $table) {
     $table->index(['user_id', 'created_at']);
 });
+
+//Ordering by has-one relationships
+
+Consider an app which lists users with their name, email and company. It's currently ordering the users by their name, but what if we wanted to order them by their company instead?
+
+Name	Email	Company
+Adam Wathan	adam.wathan@gmail.com	NothingWorks Inc.
+Chris Fidao	fideloper@gmail.com	Servers For Hackers
+Jonathan Reinink	jonathan@reinink.ca	Code Distillery Inc.
+Taylor Otwell	taylor@laravel.com	Laravel LLC.
+This app includes a User model with a hasOne company relationship. Meaning, the company name exists in the companies table.
+
+class User extends Model
+{
+    public function company()
+    {
+        return $this->hasOne(Company::class);
+    }
+}
+There's actually two approaches we can use to order these users by their company. The first is using a join:
+
+$users = User::select('users.*')
+    ->join('companies', 'companies.user_id', '=', 'users.id')
+    ->orderBy('companies.name')
+    ->get();
+Let's break this query down.
+
+First we select only the columns from the users table, since, by default, Laravel will select all the columns when using a join, including the columns from the companies table.
+
+User::select('users.*')
+Next, we join in the companies table where the company's user_id equals the user's id.
+
+->join('companies', 'companies.user_id', '=', 'users.id')
+And finally, we order the records by the company's name column.
+
+->orderBy('companies.name')
+Here is the generated SQL for this query:
+
+select users.*
+from users
+inner join companies on companies.user_id = users.id
+order by companies.name asc
