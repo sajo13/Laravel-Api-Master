@@ -1001,3 +1001,98 @@ $users = User::select('users.*')
     ->groupBy('users.id')
     ->orderByRaw('max(logins.created_at) desc')
     ->get();
+
+//Options for Ordering by a BelongsToMany Relationship
+
+Consider a library app which lists books with the title, author and last checkout user and date. It's currently ordering the books by the title, but what if we wanted to order them by the last checkout date or even the user name instead?
+
+Book	Last Checkout
+Clean Code: A Handbook of Agile Software Craftsmanship
+Robert C. Martin
+Matt Stauffer
+6 years ago
+Patterns of Enterprise Application Architecture
+Martin Fowler
+Freek Van der Herten
+8 months ago
+PHP and MySQL Web Development
+Luke Welling
+Jonathan Reinink
+4 years ago
+Test Driven Development: By Example
+Kent Beck
+Adam Wathan
+19 years ago
+The Pragmatic Programmer: From Journeyman to Master
+Andy Hunt
+Taylor Otwell
+6 years ago
+Working Effectively with Legacy Code
+Michael C. Feathers
+Caleb Porzio
+1 day ago
+This app includes a Book model with a belongsToMany users relationship that uses a checkouts pivot table. Each time a user checks out a book, a new record is created in this table, which includes the date in the borrowed_date column.
+
+class Book extends Model
+{
+    public function user()
+    {
+        return $this->belongsToMany(User::class, 'checkouts')
+            ->using(Checkout::class)
+            ->withPivot('borrowed_date');
+    }
+}
+
+class Checkout extends Pivot
+{
+    protected $table = 'checkouts';
+
+    protected $casts = [
+        'borrowed_date' => 'date',
+    ];
+}
+Let's start with ordering by the last borrowed date.
+
+This is actually the easier thing to order by. And that's because the borrowed_date exists on our checkouts pivot table. Checkouts are essentially a has-many relationship to books. One book "has many" checkouts. We just happen to be using the checkouts as the pivot table for the belongs-to-many relationship between books and users.
+
+Meaning, if we want to sort by a column on the checkouts table, we can use the exact same techniques we covered above in the has-many relationships section.
+
+Here's a quick review on how you can do this using a subquery:
+
+$books = Books::orderByDesc(Checkout::select('borrowed_date')
+    ->whereColumn('book_id', 'books.id')
+    ->latest('borrowed_date')
+    ->limit(1)
+)->get();
+You might be wondering, "what if I am not using a Checkout pivot model, can I still do this?"
+
+Absolutely. The order by methods, as of Laravel 6, also allow you to provide a closure, where you can manually write the subquery.
+
+$books = Books::orderByDesc(function ($query) {
+    $query->select('borrowed_date')
+        ->from('checkouts')
+        ->whereColumn('book_id', 'books.id')
+        ->latest('borrowed_date')
+        ->limit(1);
+})->get();
+Here is the generated SQL for both of these queries (they are identical):
+
+select * from books order by (
+    select borrowed_date
+    from checkouts
+    where book_id = books.id
+    order by borrowed_date desc
+    limit 1
+) desc
+Okay, now let's move on to actually ordering by a belongs-to-many relationship column.
+
+In our example, that means ordering by a column in the users table. Let's update the books query to order by the name of the user who last checked out that book.
+
+Again, we'll use an order by subquery to do this:
+
+$books = Book::orderBy(User::select('name')
+    ->join('checkouts', 'checkouts.user_id', '=', 'users.id')
+    ->whereColumn('checkouts.book_id', 'books.id')
+    ->latest('checkouts.borrowed_date')
+    ->take(1)
+)->get();
