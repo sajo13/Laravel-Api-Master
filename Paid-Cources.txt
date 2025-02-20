@@ -1096,3 +1096,23 @@ $books = Book::orderBy(User::select('name')
     ->latest('checkouts.borrowed_date')
     ->take(1)
 )->get();
+
+
+//Ordering With NULLs Always Last
+You might have a column like published_at in your database, and some rows might have NULL values for this column. By default, when you order the results, NULL values are treated as the lowest (in ascending order) or the highest (in descending order), but sometimes you want to ensure that NULL values always appear at the end.
+
+Example: Sorting NULL Values Last with orderByRaw
+Here’s how you can achieve that with Laravel Eloquent:
+
+php
+Copy
+<?php
+
+use App\Models\Post;
+
+// Sorting posts by `published_at`, ensuring `NULL` values come last
+$posts = Post::orderByRaw('published_at IS NULL, published_at DESC')->get();
+
+// Output the results
+return $posts;
+?>
