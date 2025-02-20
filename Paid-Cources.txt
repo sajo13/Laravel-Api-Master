@@ -883,3 +883,47 @@ select users.*
 from users
 inner join companies on companies.user_id = users.id
 order by companies.name asc
+
+// Ordering by belongs-to relationships
+
+Ordering by a belongs-to relationship is basically exactly the same as ordering by a has-one relationship, except the foreign keys are in opposite tables. To make this article useful from a documentation perspective, this section will be almost entirely duplicated from the has-one instructions. Feel free to skip down to the next section if you're reading this article in its entirety.
+
+Consider an app which lists users with their name, email and company. It's currently ordering the users by their name, but what if we wanted to order them by their company instead?
+
+Name	Email	Company
+Adam Wathan	adam.wathan@gmail.com	NothingWorks Inc.
+Chris Fidao	fideloper@gmail.com	Servers For Hackers
+Jonathan Reinink	jonathan@reinink.ca	Code Distillery Inc.
+Taylor Otwell	taylor@laravel.com	Laravel LLC.
+This app includes a User model with a belongsTo company relationship. Meaning, the company name exists in the companies table.
+
+class User extends Model
+{
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
+}
+Like the has-one relationships, there are two approaches we can use to order these users by their company. The first is using a join:
+
+$users = User::select('users.*')
+    ->join('companies', 'companies.id', '=', 'users.company_id')
+    ->orderBy('companies.name')
+    ->get();
+Let's break this query down.
+
+First we select only the columns from the users table, since, by default, Laravel will select all the columns when using a join, including the columns from the companies table.
+
+User::select('users.*')
+Next, we join in the companies table where the company's id equals the user's company_id.
+
+->join('companies', 'companies.id', '=', 'users.company_id')
+And finally, we order the records by the company's name column.
+
+->orderBy('companies.name')
+Here is the generated SQL for this query:
+
+select users.*
+from users
+inner join companies on companies.id = users.company_id
+order by companies.name asc
