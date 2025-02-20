@@ -692,3 +692,20 @@ $results = Model::where(function($query) use ($search) {
                 })
                 ->get();
 This ensures that all orWhere conditions are grouped together in one set of parentheses.
+
+// Associative Array
+An associative array uses named keys to store values.
+
+<?php
+// Creating an associative array
+$person = array(
+    "name" => "John",
+    "age" => 30,
+    "city" => "New York"
+);
+
+// Accessing elements by key
+echo $person["name"]; // Output: John
+echo $person["age"];  // Output: 30
+echo $person["city"]; // Output: New York
+?>
