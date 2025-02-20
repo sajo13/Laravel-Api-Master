@@ -1148,3 +1148,15 @@ When we refresh the welcome page and check the “Queries” tab in the Debugbar
 we will see that we now only execute 2 statements. The first is to get all the post records 
 and the second is to get the user data for the owners of the post records we retrieved. 
 The total duration has also dropped to only 8.9ms.
+
+
+
+// Full Text Searching With Rankings
+PS: Using laravel built-in $table->fullText() is less accurate than using DB::statement(). So I would recommend also using this:
+
+// instead of this
+$table->fullText(['title', 'body']);
+
+// do this
+DB::statement('CREATE FULLTEXT INDEX posts_title_body_fulltext ON posts(title, body) WITH PARSER ngram');
+ngram parser was added to MySQL on version 5.7.6 and has a better result than the default parser.
