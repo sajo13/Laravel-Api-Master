@@ -709,3 +709,21 @@ echo $person["name"]; // Output: John
 echo $person["age"];  // Output: 30
 echo $person["city"]; // Output: New York
 ?>
+
+//Basic Lambda Function
+
+In PHP, a lambda function (also called an anonymous function) is a function that does not have a name 
+and can be created inline. You can use lambda functions in many scenarios like callbacks, filtering, 
+or other functional programming tasks.
+
+Here's an example of how to use lambda functions in PHP:
+
+<?php
+// Defining a simple lambda function
+$square = function($x) {
+    return $x * $x;
+};
+
+// Using the lambda function
+echo $square(5); // Output: 25
+?>
