@@ -1116,3 +1116,12 @@ $posts = Post::orderByRaw('published_at IS NULL, published_at DESC')->get();
 // Output the results
 return $posts;
 ?>
+
+//Filtering and Sorting Anniversary Dates
+Laravel Query Builder offers a more Eloquent solution:
+
+$q->whereDate('created_at', '=', date('Y-m-d'));
+
+Or, of course, instead of PHP date() you can use Carbon:
+
+$q->whereDate('created_at', '=', Carbon::today()->toDateString());
