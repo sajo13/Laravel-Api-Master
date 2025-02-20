@@ -727,3 +727,25 @@ $square = function($x) {
 // Using the lambda function
 echo $square(5); // Output: 25
 ?>
+
+
+//Faster Options Than whereHas
+$variant = Variant::first(); // Use this variant to search by name
+
+// whereHas
+Product::whereHas('variants', function ($query) use ($variant) {
+            $query->where('name', $variant->name);
+        })->get(); // 11.46ms
+// join
+Product::select('products.*')
+    ->join('variants', function ($query) use ($variant){
+        $query->on('variants.product_id', '=', 'products.id')
+              ->where('variants.name', $variant->name);
+    })->get(); // 1.89ms
+
+So I would keep using whereHas for the readability if I'm working with a dataset where the results 
+will fetch most of the rows on my target model or if the amount of records in the database is small enough that the impact of changing that query 
+to a join would be minimal.
+
+On the other hand, I would use a join if I'm working with a big database and the conditions would 
+retrieve only a small subset of the records in my database.
