@@ -1184,3 +1184,46 @@ $center = GeoFacade::setPoint([22, 37])
     // you can set unlimited points.
     ->setPoint([33, 40])
     ->getCenter();
+
+//Designing Reliable Jobs
+Laravel Queue offers advanced features to fine-tune your background processing:
+
+Delayed Jobs
+Delayed jobs allow scheduling tasks to be processed 
+after a specified delay, useful for handling tasks that can be deferred 
+without immediate processing.
+
+dispatch(function () {     
+  // Task logic 
+})->delay(now()->addMinutes(10));
+
+Rate Limiting
+Laravel enables rate limiting to control the rate at which 
+certain jobs are processed, preventing overwhelming external services or resources.
+
+dispatch(
+  new ProcessPodcast($podcast)
+)->onQueue('podcasts')->throttle(5);
+
+
+Job Events
+Laravel provides events fired during the lifecycle of a queued job, 
+enabling developers to hook into specific points for monitoring or logging purposes.
+
+public function failed($exception) { 
+    // Job failed logic
+}
+
+Retry Jobs
+Failed jobs can be automatically retried a certain number of times, with delays between retries, enhancing fault tolerance.
+
+public $tries = 3;  
+public $retryAfter = 60; // seconds
+
+
+Priority Queueing
+Assigning different priority levels to queues ensures critical tasks are processed before less important ones, optimizing resource utilization.
+
+dispatch(
+  new SendEmail($details)
+)->onQueue('high');
