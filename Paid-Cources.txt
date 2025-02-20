@@ -1227,3 +1227,53 @@ Assigning different priority levels to queues ensures critical tasks are process
 dispatch(
   new SendEmail($details)
 )->onQueue('high');
+
+//Deployments of Laravel queue Production
+you can use a Supervisor to manage this situation. Unlike Laravel-specific solutions, Supervisor operates at the operating system level. Essentially, it monitors the process and automatically restarts the queue worker if it stops unexpectedly.
+
+To install Supervisor on your server, you can utilize two methods:
+
+1. Utilize the terminal directly on the web server.
+2. Employ SSH to access and install Supervisor.
+
+sudo apt-get install supervisor
+This will install the supervisor on your server.
+
+Next, generate a file named laravel-worker.conf within the /etc/supervisor/conf.d directory. It’s best to stick to this convention when naming directories and files, but you can change them if needed.
+
+Content to write in the file are:
+
+[program:laravel-worker]
+process_name=%(program_name)s_%(process_num)02d
+
+command=php  //pathto your project//      /artisan queue:work
+
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+
+user=  // username according to you most probably root//
+
+numprocs=1            
+redirect_stderr=true
+stdout_logfile=/home/forge/app.com/worker.log
+stopwaitsecs=3600
+stdout_logfile=/var/log/laravel-worker.log
+The provided content should be written into the laravel-worker.conf file, save, and then execute the following commands:
+
+sudo supervisorctl reread
+ 
+sudo supervisorctl update
+ 
+sudo supervisorctl start "laravel-worker:*"
+Certainly.
+
+Feel free to proceed. However, if you encounter any exceptions, because there are always exceptions. One such exception could be
+
+“laravel-worker: ERROR (no such group).”
+
+This will occur if your supervisor unable to detect your “laravel-worker.conf” file. To solve this problem add the below code to supervisord.conf file which is located in /etc directory most probably.
+
+[include]
+files = supervisor/conf.d/*.conf
