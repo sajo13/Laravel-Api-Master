@@ -1304,3 +1304,140 @@ Set up multiple Supervisor instances on different servers.
 Use a distributed queue (e.g., Redis) to synchronize jobs between servers.
 4. Monitor and Adjust Configurations
 Use tools like Laravel Horizon to monitor your queue workers' performance in real-time. Horizon provides visual insights into job processing, queue lengths, and resource consumption, allowing you to fine-tune configurations as needed.
+
+//Configuration Reference
+
+In Laravel, queue workers allow you to process jobs in the background, and there are a variety of configurations that you can adjust for better control over how jobs are handled. These configurations are typically done in two places:
+
+Queue Worker Configuration (e.g., supervisor settings).
+Job Configuration (e.g., retries, timeouts).
+Let's break it down for both queue worker configurations and job configuration:
+
+1. Queue Worker Configuration (via Supervisor)
+If you want to manage and configure Laravel workers (which process jobs), you can configure them using Supervisor. Supervisor is commonly used in production to ensure workers are running, are restarted if they fail, and can be managed easily.
+
+Here’s an example configuration for Supervisor:
+
+Example: Supervisor Configuration for Laravel Workers
+Create a config file for your workers in /etc/supervisor/conf.d/laravel-worker.conf:
+
+[program:laravel-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php /path/to/your/project/artisan queue:work --sleep=3 --tries=3 --queue=default
+autostart=true
+autorestart=true
+user=youruser
+numprocs=8  # Number of processes to spawn (adjust based on your server capacity)
+redirect_stderr=true
+stdout_logfile=/path/to/your/project/storage/logs/worker.log
+stopwaitsecs=3600
+
+Key Configuration Options for Queue Worker:
+command: This is the command to run for processing jobs, such as php artisan queue:work.
+
+--sleep: Defines how long the worker should sleep before checking for more jobs (in seconds).
+--tries: Defines how many times a job should be retried before failing.
+--queue: Specifies the queue(s) the worker should listen to (e.g., default or emails).
+numprocs: Number of worker processes to run (you can scale this depending on your server’s resources).
+
+autostart: Ensures the worker is started automatically when Supervisor starts.
+
+autorestart: Ensures the worker is restarted if it crashes.
+
+stdout_logfile: Path to the log file where worker output will be saved.
+
+stopwaitsecs: The number of seconds to wait for a worker to stop gracefully.
+
+After you’ve added the configuration, run these commands to apply the changes:
+
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start "laravel-worker:*"
+
+2. Job Configuration (via Laravel Queue Configuration)
+Laravel provides several options for configuring the behavior of jobs themselves. You can configure these behaviors in the job class or in the queue configuration.
+
+Job Class Configuration:
+You can define specific behaviors for each job using the Job class. Here are some important properties and methods you might use:
+
+Example: Job Configuration in Laravel
+
+<?php
+
+namespace App\Jobs;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
+
+class ExampleJob implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    // Specify the number of attempts before failing
+    public $tries = 3;
+
+    // Specify the timeout for the job
+    public $timeout = 120;
+
+    // Specify the job's unique identifier (if needed for uniqueness)
+    public $uniqueFor = 3600; // The job will be unique for 1 hour
+
+    public function handle()
+    {
+        // Job processing logic
+        Log::info("Processing job...");
+    }
+
+    // Configure the job's failure behavior
+    public function failed(\Exception $exception)
+    {
+        // Handle the job failure, such as logging the failure or notifying someone
+        Log::error("Job failed: " . $exception->getMessage());
+    }
+}
+
+Important Properties for Job Configuration:
+$tries: Defines how many times the job should be attempted before it is marked as failed.
+$timeout: Defines how many seconds the job should run before being marked as a timeout.
+$uniqueFor: Prevents the job from being dispatched again if it was previously dispatched within the specified time (in seconds).
+failed(): This method allows you to define what happens when the job fails, e.g., sending a notification, logging the error, etc.
+3. Queue Configuration in config/queue.php
+You can also configure how your queues behave globally in the config/queue.php file. This is where you configure things like default queue connection, retry time, and queue-specific settings.
+
+Example: config/queue.php Configuration
+
+return [
+    'default' => env('QUEUE_CONNECTION', 'sync'),
+
+    'connections' => [
+        'sync' => [
+            'driver' => 'sync',
+        ],
+
+        'database' => [
+            'driver' => 'database',
+            'table' => 'jobs',
+            'queue' => 'default',
+            'retry_after' => 90, // seconds before a job is retried
+            'after_commit' => false,
+        ],
+
+        'redis' => [
+            'driver' => 'redis',
+            'connection' => 'default',
+            'queue' => 'default',
+            'retry_after' => 90,
+            'block_for' => null,
+        ],
+    ],
+];
+
+
+Key Queue Configuration Options:
+default: The default queue connection that Laravel should use. This can be set to sync, database, redis, etc.
+retry_after: Defines the number of seconds before a job is retried.
+after_commit: If set to true, jobs will be pushed to the queue only after the database transaction commits.
