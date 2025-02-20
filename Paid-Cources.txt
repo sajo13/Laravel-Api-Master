@@ -749,3 +749,38 @@ to a join would be minimal.
 
 On the other hand, I would use a join if I'm working with a big database and the conditions would 
 retrieve only a small subset of the records in my database.
+
+//Use Unions to Run Queries Independently
+Key Concepts:
+union: Combines the results of multiple queries, excluding duplicate rows.
+unionAll: Combines the results of multiple queries, including duplicate rows.
+Example: Using union to Combine Queries Independently
+Imagine you have two different tables or queries, and you want to combine their results.
+
+Scenario: You have two queries—one to fetch users from the users table and another 
+to fetch customers from the customers table. Both queries return similar data (e.g., name, email), 
+and you want to combine these results into one collection.
+
+<?php
+
+use App\Models\User;
+use App\Models\Customer;
+use Illuminate\Support\Facades\DB;
+
+// First query: Getting users
+$query1 = User::select('name', 'email')
+             ->where('status', 'active');
+
+// Second query: Getting customers
+$query2 = Customer::select('name', 'email')
+                  ->where('status', 'active');
+
+// Combine results using union
+$combinedResults = $query1->union($query2)->get();
+
+// Optionally, you can use `unionAll` to include duplicates:
+$combinedResultsIncludingDuplicates = $query1->unionAll($query2)->get();
+
+// Return or display the combined results
+return $combinedResults;
+?>
