@@ -819,3 +819,16 @@ $users = User::where('name', 'LIKE', "%{$searchTerm}%")->get();
 return $users;
 ?>
 Here, % represents any sequence of characters before or after the search term (jon), allowing matches like Johnny, Jonas, Jonathan, etc. This can simulate "fuzzy" searching by allowing variations of the search term.
+
+
+//Run Authorization Policies in the Database
+Laravel provides two primary ways of authorizing actions: gates and policies. 
+Think of gates and policies like routes and controllers. Gates provide a simple, 
+closure-based approach to authorization while policies, like controllers, group logic 
+around a particular model or resource. In this documentation, we'll explore gates first and then examine policies.
+
+You do not need to choose between exclusively using gates or exclusively using policies 
+when building an application. Most applications will most likely contain some mixture of gates 
+and policies, and that is perfectly fine! Gates are most applicable to actions that 
+are not related to any model or resource, such as viewing an administrator dashboard. 
+In contrast, policies should be used when you wish to authorize an action for a particular model or resource.
