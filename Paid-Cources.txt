@@ -1160,3 +1160,27 @@ $table->fullText(['title', 'body']);
 // do this
 DB::statement('CREATE FULLTEXT INDEX posts_title_body_fulltext ON posts(title, body) WITH PARSER ngram');
 ngram parser was added to MySQL on version 5.7.6 and has a better result than the default parser.
+
+//Get the Distance Between Geographic Points eloquebt
+
+Laravel Geographical Calculator helps you implement geographical calculation with several algorithms that help you deal with coordinates.
+
+This package has two primary uses: getting the distance between a set of coordinates and getting the center between two or more coordinates.
+
+First, here's an example of getting the distance between multiple sets of latitude and longitude points. The GeoFacade accepts various sets of points and calculates the distance between point one and point two, then points two and three, and so on.
+
+use \KMLaravel\GeographicalCalculator\Facade\GeoFacade;
+ 
+$distance = GeoFacade::setPoint([22, 37])
+    ->setOptions(['units' => ['km']])
+    // you can set unlimited lat/long points.
+    ->setPoint([33, 40])
+    // get the calculated distance between each point
+    ->getDistance();
+You can get the center between two sets of lat/long points using the getCenter() method. Like the getDistance() method, you can call setPoint() multiple times and it will calculate the center of multiple sets of points:
+
+// Get the calculated center between these points.
+$center = GeoFacade::setPoint([22, 37])
+    // you can set unlimited points.
+    ->setPoint([33, 40])
+    ->getCenter();
