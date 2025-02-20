@@ -1125,3 +1125,26 @@ $q->whereDate('created_at', '=', date('Y-m-d'));
 Or, of course, instead of PHP date() you can use Carbon:
 
 $q->whereDate('created_at', '=', Carbon::today()->toDateString());
+
+//Make N+1 Issues Impossible
+Eloquent can “eager load” relationships at the time you query the parent model. 
+Eager loading alleviates the “N+1” query problem.
+
+To eager load our user-post relationship we just need to modify Post::all() query 
+and chain it with with() method.
+
+...
+
+Route::get('/', function () {
+    $posts = Post::with('user')->get();   // get all posts and eager load the user relation
+
+    return view('welcome', [
+        'posts' => $posts,  // send it to 'welcome' view
+    ]);
+});
+
+...
+When we refresh the welcome page and check the “Queries” tab in the Debugbar again, 
+we will see that we now only execute 2 statements. The first is to get all the post records 
+and the second is to get the user data for the owners of the post records we retrieved. 
+The total duration has also dropped to only 8.9ms.
