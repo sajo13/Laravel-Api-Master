@@ -1455,3 +1455,30 @@ $request->user()->currentAccessToken()->delete();
  
 // Revoke a specific token...
 $user->tokens()->where('id', $tokenId)->delete();
+
+//Designing Response Payloads
+
+As you have already read, resources may be 
+returned directly from routes and controllers:
+
+use App\Http\Resources\UserResource;
+use App\Models\User;
+ 
+Route::get('/user/{id}', function (string $id) {
+    return new UserResource(User::findOrFail($id));
+});
+
+However, sometimes you may need to customize the outgoing HTTP response 
+before it is sent to the client. There are two ways to accomplish this. First, 
+you may chain the response method onto the resource. This method 
+will return an Illuminate\Http\JsonResponse instance, giving you full control over the response's headers:
+
+use App\Http\Resources\UserResource;
+use App\Models\User;
+ 
+Route::get('/user', function () {
+    return (new UserResource(User::find(1)))
+        ->response()
+        ->header('X-Value', 'True');
+});
+
