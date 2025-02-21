@@ -1482,3 +1482,38 @@ Route::get('/user', function () {
         ->header('X-Value', 'True');
 });
 
+
+//Conditionally Omitting and Including Data
+When building APIs with Laravel, you often need to include multiple attributes based on a single condition. 
+Laravel’s API Resources provide a powerful mergeWhen method to achieve this efficiently. 
+Let's explore how to use this feature to create cleaner, more conditional API responses.
+
+Understanding mergeWhen
+The mergeWhen method allows you to include multiple attributes 
+In your resource response based on a single condition. 
+This is particularly useful when you have several related attributes that should be included or excluded together.
+
+Basic Usage
+Here’s a simple example of how to use mergeWhen:
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class UserResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+            $this->mergeWhen($request->user()->isAdmin(), [
+                'last_login' => $this->last_login,
+                'ip_address' => $this->ip_address,
+                'is_banned' => $this->is_banned,
+            ]),
+        ];
+    }
+}
+In this example, the additional user information is only included if the authenticated user is an admin.
+
