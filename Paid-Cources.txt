@@ -1686,3 +1686,157 @@ class UserController extends Controller
         return response()->json($user, 200);
     }
 }
+
+//Using Policies for User Authorization
+
+Policies are classes that organize authorization logic around a particular model or resource. 
+For example, if your application is a blog, you may have an App\Models\Blog model and a corresponding App\Policies\BlogPolicy to authorize user actions such as creating or updating posts.
+
+let create a BlogPolicy attach with Blog Model
+
+php artisan make:policy BlogPolicy — model=Blog
+
+using this command you see BlogPolicy class in App/Policies
+
+lets see BlogPolicy class
+
+<?php
+
+namespace App\Policies;
+
+use App\Models\Blog;
+use App\Models\User;
+use Illuminate\Auth\Access\Response;
+
+class BlogPolicy
+{
+
+    /**
+     * Determine whether the user can create models.
+     */
+    public function create(User $user): bool
+    {
+        return $user->role == 'writer';
+    }
+
+    /**
+     * Determine whether the user can update the model.
+     */
+    public function update(User $user, Blog $blog): bool
+    {
+        return $user->id == $blog->user_id;
+    }
+
+    /**
+     * Determine whether the user can delete the model.
+     */
+    public function delete(User $user, Blog $blog): bool
+    {
+        return $user->id == $blog->user_id;
+    }
+
+   
+}
+create() method return TRUE only authenticate user have role writer then can create a blog
+update() method return TRUE only when auth()->user()->id is = $blog->user_id mean no other user update other user post
+delete() method also return TRUE only when auth()->user()->id is = $blog->user_id mean no other user delete other user post
+$user refer to authenticate user
+lets see how we use this BlogPolicy method in our BlogController
+
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use App\Models\Blog;
+
+class BlogController extends Controller
+{
+   
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+
+        $this->authorize('create', Blog::class);
+
+        
+        // further your logic
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Blog $blog)
+    {
+
+        $this->authorize('update', $blog);
+
+
+        // further your logic
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Blog $blog)
+    {
+
+        $this->authorize('update', $blog);
+
+        
+        // further your logic
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Blog $blog)
+    {
+        
+        $this->authorize('delete', $blog);
+
+        
+
+        // further your logic
+    }
+}
+$this->authorize(‘create’, Blog::class); refers to create method in BlogPolicy
+
+$this->authorize(‘delete’, $blog); refers to delete method in BlogPolicy
+
+$this->authorize(‘update’, $blog); refers to update method in BlogPoicy
+
+you can also use these methods in controller
+
+// this you can use to check authentication
+if (request()->user()->cannot('create', Blog::class)) {
+    abort(403);
+}
+//this also works
+Gate::authorize('create', Blog::class);   //using Gate Facade
+you can use through middleware
+
+Route::post('/post', function () {
+    // The current user may create posts...
+})->middleware('can:create,App\Models\Post');
+if user try to update or delete other users blog then see this 403
+
+
+lets see how we use in blade template
+
+we want only post’s user see the edit or delete button then how we use this in blade
+
+@if (Auth::user()->can('update', $blog))
+    <!-- The current user can update the post... edit button comes here-->
+  
+@endif
+or also you may use the @can and @cannot directives:
+
+@can('delete', $post)
+    <!-- The current user can delete the post... -->
+
+    <!-- here delete button only see by post owner user-->
+@endcan
