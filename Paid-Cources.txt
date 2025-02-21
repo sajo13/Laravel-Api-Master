@@ -1517,3 +1517,26 @@ class UserResource extends JsonResource
 }
 In this example, the additional user information is only included if the authenticated user is an admin.
 
+//Adding optional Parameter in routes
+How to Use Optional Parameters in Laravel Routes
+
+Adding optional parameters in Laravel routes is easy. You just need to add a ? to the parameter name in the route and provide a default value in the logic.
+
+Example: Showing a Product
+
+Let’s create a route to show a product. If no ID is provided in the URL, it defaults to “default”.
+
+Route::get('/product/{id?}', function ($id = 'default') {
+    return "Product ID: $id";
+});
+Visiting /product will return Product ID: default.
+Visiting /product/123 will return Product ID: 123.
+Adding Rules to Optional Parameters
+
+You can add constraints to the optional parameters using the where method. For example, only allowing numbers for the id:
+
+Route::get('/product/{id?}', function ($id = 'default') {
+    return "Product ID: $id";
+})->where('id', '[0-9]+');
+/product/123 works fine.
+/product/abc will return a 404 error
