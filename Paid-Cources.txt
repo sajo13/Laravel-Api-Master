@@ -1652,3 +1652,37 @@ GET /posts?sort=-title
 
 // sorted by title ascending
 GET /posts?sort=title
+
+
+//
+
+1. Set Up Your Route
+In the routes/api.php file, define a route for the PATCH request. Here’s an example for updating a user’s information:
+
+Route::patch('/users/{user}', [UserController::class, 'update']);
+This route maps to the update method of the UserController. The {user} is a route parameter that allows you to pass the user's ID to identify the resource you want to update.
+
+2. Create or Modify the Controller Method
+In the UserController, define the update method to handle the PATCH request. You’ll use the request() helper to get the incoming data and then apply the changes to the user resource.
+
+use App\Models\User;
+use Illuminate\Http\Request;
+
+class UserController extends Controller
+{
+    public function update(Request $request, User $user)
+    {
+        // Validate incoming data (you can adjust the validation rules)
+        $validatedData = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|max:255',
+            'password' => 'sometimes|string|min:8',
+        ]);
+
+        // Update only the fields that were passed in the request
+        $user->update($validatedData);
+
+        // Return the updated user as a response
+        return response()->json($user, 200);
+    }
+}
