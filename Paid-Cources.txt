@@ -1441,3 +1441,17 @@ Key Queue Configuration Options:
 default: The default queue connection that Laravel should use. This can be set to sync, database, redis, etc.
 retry_after: Defines the number of seconds before a job is retried.
 after_commit: If set to true, jobs will be pushed to the queue only after the database transaction commits.
+
+//Revoking Authentication Tokens
+
+You may "revoke" tokens by deleting them from your database 
+using the tokens relationship that is provided by the Laravel\Sanctum\HasApiTokens trait:
+
+// Revoke all tokens...
+$user->tokens()->delete();
+ 
+// Revoke the token that was used to authenticate the current request...
+$request->user()->currentAccessToken()->delete();
+ 
+// Revoke a specific token...
+$user->tokens()->where('id', $tokenId)->delete();
