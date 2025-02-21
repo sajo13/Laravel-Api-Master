@@ -1624,3 +1624,31 @@ class QueryFilter
         return $builder;
     }
 }
+
+//Sorting Data
+// app/Http/Controllers/Posts.php
+//...
+use Spatie\QueryBuilder\QueryBuilder;
+
+class Posts extends Controller {
+
+  function index(Request $request){
+    $posts = QueryBuilder::for (Link::class)
+      ->allowedFilters(['title', 'views'])
+      ->allowedSorts('title', 'created_at', 'views')
+      ->paginate($request->get('perPage', 15));
+    return response()->json($links);
+  }
+
+  // ...
+}
+This index method on the Posts controller looks pretty typical but with one primary difference: the use of Laravel Query Builder from Spatie.be.
+
+This package allows us to very quickly and easily support filters, sorts, and more from our front end in the form of query string variables.
+
+//Sort/OrderBy
+// sorted by title descending
+GET /posts?sort=-title
+
+// sorted by title ascending
+GET /posts?sort=title
