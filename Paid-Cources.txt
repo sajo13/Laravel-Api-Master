@@ -1540,3 +1540,87 @@ Route::get('/product/{id?}', function ($id = 'default') {
 })->where('id', '[0-9]+');
 /product/123 works fine.
 /product/abc will return a 404 error
+
+//Create Filters
+Creating the Filter
+
+class ProductFilter extends QueryFilter
+{
+// WHERE HAS THE CATEGORY ID
+public function category($id) {
+        return $this->builder->where('category_id', $id);
+}
+// WHERE HAS THE TYPE ID
+public function type($id) {
+        return $this->builder->where('type_id', $id);
+}
+// WHERE TITLE IS LIKE ( THE NAME OF THE PRODUCT)
+public function title($name)
+  {
+      $this->query->where('name', 'like', $name.'%');
+  }
+
+// SEARCH THE PRODUCT CREATED AT BEFORE THE DATE
+  public function beforeDate($date) {
+       return $this->builder->whereDate('created_at' , '<' , $date );
+    }
+
+// SEARCH THE PRODUCT CREATED AT AFTER THE DATE
+  public function afterDate($date) {
+       return $this->builder->whereDate('created_at' , '>' , $date );
+    }
+
+ // search the status enum
+  public function status($value) {
+        return $this->builder->where('status', $value);
+    }
+
+// WHERE HAS MORE THAN IMAGES COUNTING,   FOR EXAMPLE WE WANT TO GET PRODUCTS THAT HAS MORE THAN 3 IMAGES
+ public function imageCount($imageNumber) {
+    return $this->builder->withCount('Images')->having('images_count', '>', $imageNumber);
+ }
+// WHERE HAS IMAGES ID
+public function images($id) {
+     return $this->builder->WhereHas('Images' , function($query)  use ($id) {
+            return $query->where('id' , $id );
+        });
+}
+
+Here we create a class that we can use in all those filters .
+
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
+
+class QueryFilter
+{
+
+    protected $builder;
+    protected $request;
+
+   public function __construct(Request $request)
+    {
+        $this->request = $request;
+    }
+
+    protected function filter($arr) {
+        foreach($arr as $key => $value) {
+            if (method_exists($this, $key)) {
+                $this->$key($value);
+            }
+        }
+
+        return $this->builder;
+    }
+
+    public function apply(Builder $builder) {
+        $this->builder = $builder;
+
+        foreach($this->request->all() as $key => $value) {
+            if (method_exists($this, $key)) {
+                $this->$key($value);
+            }
+        }
+
+        return $builder;
+    }
+}
